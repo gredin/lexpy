@@ -114,7 +114,25 @@ class FSA:
         words = []
         letter = wildcard[index]
 
-        if letter == '?':
+        if letter == ".":
+            for child in node.children:
+                child_node = node[child]
+
+                child_words = FSA.__words_with_wildcard(child_node,
+                                                        wildcard,
+                                                        index + 1,
+                                                        current_word + child,
+                                                        with_count=with_count)
+                words.extend(child_words)
+
+        elif letter == '?':
+            words_at_current_level = FSA.__words_with_wildcard(node,
+                                                               wildcard,
+                                                               index + 1,
+                                                               current_word,
+                                                               with_count=with_count)
+            words.extend(words_at_current_level)
+
             for child in node.children:
                 child_node = node[child]
 
@@ -146,8 +164,8 @@ class FSA:
                 return [(current_word, node.count)] if with_count else [current_word]
 
         else:
-            if letter in node.children:
-                child_node = node[letter]
+            child_node = node.children.get(letter, None)
+            if child_node is not None:
                 child_words = FSA.__words_with_wildcard(child_node,
                                                         wildcard,
                                                         index + 1,
